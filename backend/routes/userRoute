@@ -1,0 +1,32 @@
+const express = require('express'); 
+const ticketModel = require('../models/ticketModel'); 
+
+
+const router = express.Router();
+
+// GET all users
+router.get('/', (req, res) => {
+    res.json({msg: 'Welcome to the User API'});
+});
+
+
+// GET a single user by ID
+router.get('/:id', (req, res) => {
+    const userId = req.params.id;
+    res.json({msg: 'Get single user', userId: userId});
+});
+
+// Patch an existing user by ID
+router.patch('/:id', (req, res) => {
+    const userId = req.params.id;
+    const updatedUser = req.body;
+    res.json({msg: 'Update user', userId: userId, updatedUser: updatedUser});
+});
+
+// Delete a user by ID
+router.delete('/:id', (req, res) => {
+    const userId = req.params.id;
+    res.json({msg: 'Delete user', userId: userId});
+});
+
+module.exports = router;

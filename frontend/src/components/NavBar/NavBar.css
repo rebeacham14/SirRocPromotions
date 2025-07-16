@@ -1,0 +1,62 @@
+/* Navbar.css */
+
+.navbar {
+  /* Basic styling for the navbar container */
+  display: flex; 
+  justify-content: space-evenly;
+  align-items: center; /* Vertically center the items */
+  background-color: #333; /* Dark background color */
+  color: #fff; /* White text color */
+  padding: 1rem; /* Add some padding around the content */
+}
+
+.nav-links {
+  /* Styling for the unordered list of navigation links */
+  list-style-type: none; /* Remove default bullet points */
+  display: flex; /* Display list items horizontally */
+  margin: 0; /* Remove default margin */
+  padding: 0; /* Remove default padding */
+}
+
+.nav-links li {
+  /* Styling for each list item (link container) */
+  margin-right: 1rem; /* Add spacing between links */
+}
+
+.nav-links a {
+  /* Styling for the navigation links */
+  color: #fff; /* White link color */
+  text-decoration: none; /* Remove default underline */
+  padding: 0.5rem 1rem; /* Add padding for clickable area */
+  transition: color 0.3s ease-in-out; /* Smooth color transition on hover */
+}
+
+.nav-links a:hover {
+  /* Styling for links on hover */
+  color: gold; /* Lighter color on hover */
+  
+}
+
+/* Optional: Add styles for the active link (if using React Router's NavLink) */
+.nav-links a.active {
+  font-weight: bold; /* Make the active link bold */
+  border-bottom: 2px solid #fff; /* Add an underline to the active link */
+}
+
+/* Optional: Basic responsive adjustments */
+@media (max-width: 768px) {
+  .navbar {
+    flex-direction: column; /* Stack items vertically on smaller screens */
+    align-items: flex-start; /* Align items to the left */
+  }
+
+  .nav-links {
+    flex-direction: column; /* Stack links vertically */
+    margin-top: 1rem; /* Add spacing between navbar and links */
+  }
+
+  .nav-links li {
+    margin-right: 0;
+    margin-bottom: 0.5rem; /* Add spacing between vertical links */
+  }
+}

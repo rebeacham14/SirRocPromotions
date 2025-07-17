@@ -166,20 +166,20 @@ function BuyATicket () {
             case "D":
             case "E":
                 if(row=="A"||row=="B"){
-                    window.location.href ="https://buy.stripe.com/test_eVq00k4SPab72NW8tTgbm01"
+                    window.location.href ="https://buy.stripe.com/eVq00k4SPab72NW8tTgbm01"
                 }
                 else{
-                    window.location.href ="https://buy.stripe.com/test_eVq28s0Cz9736089xXgbm02"
+                    window.location.href ="https://buy.stripe.com/eVq28s0Cz9736089xXgbm02"
                 }
                 break;
             case "F":            
-                window.location.href ='https://buy.stripe.com/test_bJe00k0Czern3S0aC1gbm03'
+                window.location.href ="https://buy.stripe.com/bJe00k0Czern3S0aC1gbm03"
                     if(section.charAt(1)>1){
-                        window.location.href = "https://buy.stripe.com/test_4gM7sMclhab7agodOdgbm04"
+                        window.location.href = "https://buy.stripe.com/4gM7sMclhab7agodOdgbm04"
                     }
                 break;
             case "G":
-                window.location.href ="https://buy.stripe.com/test_14AcN60Cz0AxfAI11rgbm05"
+                window.location.href ="https://buy.stripe.com/14AcN60Cz0AxfAI11rgbm05"
                 break;
         }
 

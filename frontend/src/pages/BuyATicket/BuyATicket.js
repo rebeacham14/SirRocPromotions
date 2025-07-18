@@ -131,7 +131,7 @@ function BuyATicket () {
 
 
         // send post request to back end
-        const response = await fetch('/api/ticket/', {
+        const response = await fetch('https://sirrocpromotions.onrender.com/api/ticket/', {
             method:"POST",
             headers:{"Content-Type": "application/json"},
             body: JSON.stringify(purchaseSeat),

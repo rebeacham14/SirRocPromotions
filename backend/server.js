@@ -10,7 +10,7 @@ const fighterRoutes = require('./routes/fighterRoute')
 
 
 app.use(cors({
-    origin: 'https://fantastic-crostata-d1e5f3.netlify.app', 
+    origin: '*', 
     methods: ['GET', 'POST', 'PATCH', 'DELETE'],
 }))
 

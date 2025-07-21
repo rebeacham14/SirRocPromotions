@@ -9,6 +9,13 @@ const userRoutes = require('./routes/userRoute')
 const fighterRoutes = require('./routes/fighterRoute')
 
 
+app.use(cors({
+    origin: 'https://fantastic-crostata-d1e5f3.netlify.app', 
+    methods: ['GET', 'POST', 'PATCH', 'DELETE'],
+}))
+
+
+
 
 // express app
 const SirRocPromotions = express()

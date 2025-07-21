@@ -145,44 +145,40 @@ function BuyATicket () {
         }
         if(response.ok){
             setError(null)
+
+            // connect to stripe 
+    
+            const row = seat.charAt(0)
+    
+            switch(section.charAt(0)){
+                case "S":            
+                    window.location.href = 'https://buy.stripe.com/28E8wQ1GD973bks7pPgbm00'; 
+                    break;
+                case "A":
+                case "B":
+                case "C":
+                case "D":
+                case "E":
+                    if(row=="A"||row=="B"){
+                        window.location.href ="https://buy.stripe.com/eVq00k4SPab72NW8tTgbm01"
+                    }
+                    else{
+                        window.location.href ="https://buy.stripe.com/eVq28s0Cz9736089xXgbm02"
+                    }
+                    break;
+                case "F":            
+                    window.location.href ="https://buy.stripe.com/bJe00k0Czern3S0aC1gbm03"
+                        if(section.charAt(1)>1){
+                            window.location.href = "https://buy.stripe.com/4gM7sMclhab7agodOdgbm04"
+                        }
+                    break;
+                case "G":
+                    window.location.href ="https://buy.stripe.com/14AcN60Cz0AxfAI11rgbm05"
+                    break;
+            }
+            
             console.log("new ticket added")
         }
-
-      
-        
-        
-        
-        // connect to stripe 
-
-        const row = seat.charAt(0)
-
-        switch(section.charAt(0)){
-            case "S":            
-                window.location.href = 'https://buy.stripe.com/28E8wQ1GD973bks7pPgbm00'; 
-                break;
-            case "A":
-            case "B":
-            case "C":
-            case "D":
-            case "E":
-                if(row=="A"||row=="B"){
-                    window.location.href ="https://buy.stripe.com/eVq00k4SPab72NW8tTgbm01"
-                }
-                else{
-                    window.location.href ="https://buy.stripe.com/eVq28s0Cz9736089xXgbm02"
-                }
-                break;
-            case "F":            
-                window.location.href ="https://buy.stripe.com/bJe00k0Czern3S0aC1gbm03"
-                    if(section.charAt(1)>1){
-                        window.location.href = "https://buy.stripe.com/4gM7sMclhab7agodOdgbm04"
-                    }
-                break;
-            case "G":
-                window.location.href ="https://buy.stripe.com/14AcN60Cz0AxfAI11rgbm05"
-                break;
-        }
-
     };
 
     function handleClear() {

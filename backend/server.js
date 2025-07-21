@@ -8,17 +8,18 @@ const seatRoutes = require('./routes/seatRoute')
 const userRoutes = require('./routes/userRoute')
 const fighterRoutes = require('./routes/fighterRoute')
 
+// express app
+const SirRocPromotions = express()
 
-app.use(cors({
+
+// cors control
+SirRocPromotions.use(cors({
     origin: '*', 
     methods: ['GET', 'POST', 'PATCH', 'DELETE'],
 }))
 
 
 
-
-// express app
-const SirRocPromotions = express()
 
 
 // middleware

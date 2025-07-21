@@ -3,6 +3,7 @@ require('dotenv').config()
 
 const express = require('express')
 const mongoose = require('mongoose')
+const cors = require("cors")
 const ticketRoutes = require('./routes/ticketRoute')
 const seatRoutes = require('./routes/seatRoute')
 const userRoutes = require('./routes/userRoute')

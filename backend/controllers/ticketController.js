@@ -54,11 +54,40 @@ const createTicket = async (req, res) => {
     // const list = await ticketModel.find({})
         
     // ** same variable name required from BuyATicket
-    const { user, section, seat, price, fighter } = req.body;
+    const { user, section, seat, price, fighter, stripeKey } = req.body;
+
+    const orderID = ""+user+"_"+section+"_"+seat+"_"+price
+
+    let priceParts = price.split('.');
 
     const event="Mexico Independence Day"
-    // const user="ajgarcia"
 
+
+
+    // create item for stripe checkout
+    const lineItems = {
+        price_data:{
+            currency:"usd",
+            product_data:{
+                name: ""+event+"\n Seat: "+seat,
+            },
+            unit_amount: priceParts[0] +""+ priceParts[1],
+
+        },
+        quantity: 1
+    };
+
+    const session = await stripe.checkout.sessions.create({
+        // payment_method_types:["card"],
+        line_items: [lineItems],
+        mode: 'payment',
+        success_url: 'https://sirrocpromotions.com/payment-success/',
+        cancel_url: 'https://sirrocpromotions.com/buyaticket/',
+    });
+
+
+
+    // send to mongo db
     let ticketType=""
     if(section=="S"){ticketType="Standing"}else{ticketType="General-Admission"}
 

@@ -54,17 +54,34 @@ const createTicket = async (req, res) => {
     // const list = await ticketModel.find({})
         
     // ** same variable name required from BuyATicket
-    const { user, section, seat, price, fighter } = req.body;
+    const { user, section, seats, price, seatPriceData, fighter } = req.body;
 
+
+    const eachseat = seats.split("-")
 
     const event="Mexico Independence Day"
 
-
-    // send to mongo db
     let ticketType=""
     if(section=="S"){ticketType="Standing"}else{ticketType="General-Admission"}
 
+
+    const line_items = eachseat.map(seat, idx => ({
+        price_data: {
+            currency: 'usd',
+            product_data: {
+                name: seat,
+            },
+            unit_amount: seatPriceData[idx] * 100, // Amount in cents
+        },
+        quantity: 1,
+    }));
+
+
+    const orderID = ""+ user +"_"+ section +"_"+ seats +"_"+ price
+
+
     try {
+        // create new mongo db entry
         const newTicket = await ticketModel.create({
             "event":event,
             "user":user,
@@ -75,13 +92,24 @@ const createTicket = async (req, res) => {
             "price":price,
         });
         await newTicket.save();
-        res.status(200).json({msg: 'Create new ticket', ticket: newTicket});
+
+
+
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            line_items: line_items,
+            mode: 'payment',
+            success_url: 'https://sirrocpromotions.com/payment-success/?'+orderID,
+            cancel_url: 'https://sirrocpromotions.com/buyaticket/',
+        });
+
+        res.json({ id: session.id });
+
+        
     } catch (error) {
-        res.status(400).json({ error: error.message });
+        res.status(500).json({ error: error.message});
     }
-
 };      
-
 
 
 
@@ -142,4 +170,5 @@ module.exports = {
     updateTicket,
     deleteTicket
 };
+
 

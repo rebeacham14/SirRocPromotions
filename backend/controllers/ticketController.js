@@ -65,11 +65,11 @@ const createTicket = async (req, res) => {
     if(section=="S"){ticketType="Standing"}else{ticketType="General-Admission"}
 
 
-    const line_items = eachseat.map(seat, idx => ({
+    const line_items = eachseat.map(s, idx => ({
         price_data: {
             currency: 'usd',
             product_data: {
-                name: seat,
+                name: s.toString(),
             },
             unit_amount: seatPriceData[idx] * 100, // Amount in cents
         },
@@ -170,5 +170,6 @@ module.exports = {
     updateTicket,
     deleteTicket
 };
+
 
 

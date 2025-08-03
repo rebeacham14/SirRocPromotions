@@ -1,6 +1,8 @@
 const ticketModel = require('../models/ticketModel');
 const mongoose = require('mongoose');
-const stripe = require("stripe")(process.env.STRIPE_SECRET_TEST);
+const stripe = require("stripe")(process.env.STRIPE_SECRET);
+
+
 
 // Get all tickets
 const getAllTickets = async (req, res) => {
@@ -36,80 +38,113 @@ const getTicketById = async (req, res) => {
 
 
 
-const createCheckOutSession = async (req,res) => {
-    
-    // ** same variable name required from BuyATicket
-    const {section, seat, price} = req.body;
-    
-
-    return res.status(404).json({ error: 'CheckOut not finished' });
-
-
-}
-
 
 // Create a new ticket
 const createTicket = async (req, res) => {
-    // list of all tickets
-    // const list = await ticketModel.find({})
-        
-    // ** same variable name required from BuyATicket
-    const { user, section, seats, price, seatPriceData, fighter } = req.body;
 
+
+
+    // ---------------------set variables----------------------//
+    // set variables -- ** same variable name required from BuyATicket (client)
+    
+
+    
+    const { user, section, seats, price, seatPriceData, fighter } = req.body;
 
     const eachseat = seats.split("-")
 
+    console.log(seats)
     const event="Mexico Independence Day"
 
-    let ticketType=""
-    if(section=="S"){ticketType="Standing"}else{ticketType="General-Admission"}
+    let ticketType="General-Admission"
+    // if(section=="S"){ticketType="Standing"}else{ticketType="General-Admission"}
 
 
-    const line_items = eachseat.map(s, idx => ({
-        price_data: {
-            currency: 'usd',
-            product_data: {
-                name: s.toString(),
+
+
+
+    // ---------------------recieve request----------------------//
+
+    // console.log(seatPriceData)
+    
+    const line_items = eachseat.map((seat, idx) => (
+        
+        {
+            "price_data": {
+                "currency": 'usd',
+                "unit_amount": seatPriceData[idx] * 100, // Amount in cents
+                "product_data": {
+                    "name": event,
+                    "description": seat,
+                },
             },
-            unit_amount: seatPriceData[idx] * 100, // Amount in cents
-        },
-        quantity: 1,
-    }));
+            "quantity": 1,
+
+        }   
+
+    ));
 
 
-    const orderID = ""+ user +"_"+ section +"_"+ seats +"_"+ price
+    const orderID = user.replace("@", "&").replace(".com", "") +"_"+ section +"_"+ seats +"_"+ price
 
+    const orderURL = "https://sirrocpromotions.com/payment-success/?"+orderID
+    console.log(orderURL);
+    // console.log(section);
 
     try {
-        // create new mongo db entry
+
+
+        // save to mongo db
         const newTicket = await ticketModel.create({
             "event":event,
             "user":user,
             "fighter":fighter,
             "ticketType":ticketType,
             "section":section,
-            "seat":seat,
-            "price":price,
+            "seat":seats,
+            "price":price
         });
+
         await newTicket.save();
 
 
-
+        // create stripe session
         const session = await stripe.checkout.sessions.create({
-            payment_method_types: ['card'],
-            line_items: line_items,
             mode: 'payment',
-            success_url: 'https://sirrocpromotions.com/payment-success/?'+orderID,
+            line_items: line_items,
+            success_url: orderURL,
             cancel_url: 'https://sirrocpromotions.com/buyaticket/',
         });
 
+
+
+        // console.log(session.id)
+
         res.json({ id: session.id });
+        // res.json({ id: "after all backend" });
 
         
+
+
     } catch (error) {
         res.status(500).json({ error: error.message});
     }
+
+
 };      
+
+// create stripe checkout
+const createCheckOutSession = async (req,res) => {
+    
+    // ** same variable name required from BuyATicket
+    // const {section, seat, price} = req.body;
+    
+
+    // return res.status(404).json({ error: 'CheckOut not finished' });
+
+
+}
+
 
 
 
@@ -161,6 +196,9 @@ const deleteTicket = async (req, res) => {
 
 };
 
+
+
+
 // Export the controller functions
 module.exports = {
     getAllTickets,
@@ -170,6 +208,4 @@ module.exports = {
     updateTicket,
     deleteTicket
 };
-
-
 

@@ -35,6 +35,7 @@ function TicketSelectFighter ({ onFighterChange, setFighter}){
                 changePic(CruzPic)
             break;
         }
+        
     };
         
 

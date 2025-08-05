@@ -1,0 +1,30 @@
+#navButton{
+    background-color: rgba(38, 34, 34, 1);
+    width: 100%;
+    border: 2px solid #ffc107;
+
+
+
+
+}
+
+#navButton {
+  /* Initial state */
+  transform: translateX(0);
+  transition: transform 0.3s ease-in-out; /* Smooth transition */
+}
+
+#navButton:hover {
+  /* Hover state: translate to the right by 10px */
+  transform: translateX(80px);
+}
+
+
+
+#navButton_mobile{
+    background-color: rgba(38, 34, 34, 1);
+    width: 100%;
+    border: 2px solid #ffc107;
+
+    
+}

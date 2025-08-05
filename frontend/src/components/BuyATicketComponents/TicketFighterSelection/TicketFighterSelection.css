@@ -1,0 +1,13 @@
+
+#fighter_card {
+  /* Initial state */
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+#fighter_card:hover {
+  /* Hover state: ... */
+
+    border: 3px solid green;
+    transform: scale(1.2); /* Makes the card 5% larger */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); /* Stronger shadow on hover */
+}

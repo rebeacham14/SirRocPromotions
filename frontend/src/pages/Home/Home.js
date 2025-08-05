@@ -1,123 +1,305 @@
-import 'bootstrap/dist/css/bootstrap.min.css';
-import { Row, Col, Card, Button, Container } from 'react-bootstrap';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import './Home.css';
-import logo from './SirRocPromotions_logo_trans.png';
+import 'bootstrap/dist/css/bootstrap.min.css'; // bootstrap capability
+
+import './Home.css'; 
+
+import Video from "./vid1.mp4"
+import Logo from "./SirRocPromotions_logo_trans.png"
+
+
+import {useEffect, useState} from 'react';
+import {Row, Col, Card, Button} from 'react-bootstrap';
+
+import EventsView from '../../components/HomeComponents/EventsView/EventsView.js';
+import ContactUsView from '../../components/HomeComponents/ContactUsView/ContactUsView.js';
+import FightersView from '../../components/HomeComponents/FightersView/FightersView.js';
+
+
+
+
 
 const Home = () => {
-  return (
-    <div style={{ backgroundColor: "#000", minHeight: "100vh", color: "#fff" }}>
 
-      {/* Hero Section */}
-      <section
-        style={{
-          background: "linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.85)), url('/ticket-bg.jpg') center/cover",
-          minHeight: "90vh",
-          display: "flex",
-          alignItems: "center",
-        }}
-      >
-        <Container>
-          <Row className="align-items-center">
-            <Col lg={6}>
-              <Card className="glass-card border-warning p-4">
-                <Card.Body>
-                  <Card.Title className="fw-bold fs-4 text-warning">Next Event</Card.Title>
-                  <h1 className="display-4 fw-bold">
-                    Apocalypto: The New Beginning
-                    <span style={{ display: "block", color: "gold", fontSize: "1.5rem" }}>
-                      May 24th
-                    </span>
-                  </h1>
-                  <p className="mt-3 mb-4 lead text-light">
-                    Doors Open <strong>6pm</strong> · First Bell <strong>7pm</strong>
-                  </p>
-                  <div className="d-flex gap-3 flex-wrap">
-                    <Button variant="outline-light" size="lg" className="btn-hover">
-                      Read More
-                    </Button>
-                    <Link to="/buyaticket">
-                      <Button variant="warning" size="lg" className="btn-hover">
-                        Buy a Ticket
-                      </Button>
-                    </Link>
-                  </div>
-                </Card.Body>
-              </Card>
-            </Col>
-            <Col lg={6} className="text-center mt-4 mt-lg-0">
-              <img
-                src={logo}
-                style={{ maxHeight: "350px", width: "auto", filter: "drop-shadow(0 0 10px gold)" }}
-                alt="Sir Roc Promotions Logo"
-              />
-            </Col>
-          </Row>
-        </Container>
-      </section>
+  const [showEvents, setShowEvents] = useState(false);
+  const [showFighters, setShowFighters] = useState(false);
+  const [showContactUs, setShowContactUs] = useState(false);
 
-      {/* Intro Section */}
-      <Container className="text-center py-5">
-        <h2 className="fw-bold mb-3">Welcome to Our Event</h2>
-        <p className="lead text-muted mb-4">
-          Experience the thrill, energy, and passion — more exciting content is coming soon!
-        </p>
-        <Button variant="outline-warning" size="lg" as={Link} to="/buyaticket" className="btn-hover">
-          Buy a Ticket
-        </Button>
-      </Container>
+  const sponsors = [
+    { id: 1, logo: {Logo}, name: 'Sponsor A', link: 'https://sponsorA.com' },
+    { id: 2, logo: {Logo}, name: 'Sponsor B', link: 'https://sponsorB.com' },
+    { id: 3, logo: {Logo}, name: 'Sponsor C', link: 'https://sponsorC.com' },
+  ];
 
-      {/* Stay Tuned Card */}
-      <Container className="pb-5">
-        <Row className="justify-content-center">
-          <Col md={6} lg={5}>
-            <Card className="glass-card text-center shadow-lg border-warning p-4">
-              <Card.Body>
-                <Card.Title className="fw-bold fs-4 text-warning">Stay Tuned!</Card.Title>
-                <Card.Text className="text-muted mb-4">
-                  We're working hard to bring you exciting updates. Keep an eye on this space for
-                  event highlights, fighter announcements, and behind-the-scenes footage.
-                </Card.Text>
-                <Button variant="outline-warning" size="sm" className="btn-hover">
-                  See Highlights
-                </Button>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
-      </Container>
 
-      {/* Highlights */}
-      <Container className="pb-5">
-        <h3 className="fw-bold text-center mb-4">Event Highlights</h3>
-        <Row xs={1} md={3} className="g-4">
-          {[1, 2, 3].map((idx) => (
-            <Col key={idx}>
-              <Card className="highlight-card shadow-sm border-0">
-                <div className="highlight-img-wrapper">
-                  <Card.Img
-                    variant="top"
-                    src={`https://via.placeholder.com/400x200?text=Highlight+${idx}`}
-                  />
-                </div>
-                <Card.Body>
-                  <Card.Title>Highlight {idx}</Card.Title>
-                  <Card.Text className="text-muted">
-                    A glimpse into the excitement and energy of our last event.
-                  </Card.Text>
-                  <Button variant="outline-warning" size="sm" className="btn-hover">
-                    View More
-                  </Button>
-                </Card.Body>
-              </Card>
-            </Col>
-          ))}
-        </Row>
-      </Container>
-    </div>
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const currentSponsor = sponsors[currentIndex];
+
+
+  const [isMobile, setIsMobile] = useState(false);
+
+
+  
+  
+  
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    handleResize();
+  }, 
+  []
   );
+
+
+  
+  // const isMobile = window.innerWidth <= 768;
+
+  function toggleMainDiv (val){
+    clearMainView();
+
+    switch(val){
+      case "1" :
+        setShowEvents(!showEvents);
+        break;
+      case "2" :
+        setShowFighters(!showFighters);
+        break;
+      case "3" :
+        setShowContactUs(!showContactUs);
+        break;
+
+      }
+  };
+
+  function clearMainView(){
+    setShowEvents(false);
+    setShowFighters(false);
+    setShowContactUs(false);
+  };
+
+
+
+
+  const DesktopNav = () => {
+
+    return(
+
+      <div>
+
+        <Row style={{backgroundColor:"", position:"", width:"100%", height:"", marginTop:"",  textAlign:""}}>
+          <Col style={{width:"", height:""}}>
+
+
+            {/* Bottom Nav */}
+            <Row style={{  backgroundColor:"", height:"20vh", width:"", alignContent:"center"}}>
+
+              {/* Nav Buttons */}
+              <Col xs={12} sm={12} md={12} lg={12}  style={{backgroundColor:"", display:"flex", justifyContent:"center", alignItems:"center", margin:"20px 0"}}>
+
+                <Row>
+                  <Col>
+                    <Button id="mainButton" variant="outline-warning" value={1} onClick={(e) => {toggleMainDiv(e.target.value)}}>
+                      Events
+                    </Button>
+                  </Col>
+
+                  <Col style={{height:"", overflow:""}}>
+                    <Button id="mainButton" variant="outline-warning" value={2} onClick={(e) => {toggleMainDiv(e.target.value)}}>
+                      Fighters
+                    </Button>
+                  </Col>
+
+
+                  <Col style={{height:"", overflow:""}}>
+                    <Button id="mainButton" variant="outline-warning" onClick={()=> {window.open("https://form.jotform.com/251378223496059", '_blank')}}>
+                      Register
+                    </Button>
+                  </Col>
+
+                  <Col style={{height:"", overflow:""}}>
+                    <Button id="mainButton" variant="outline-warning" value={3} onClick={(e) => {toggleMainDiv(e.target.value)}}>
+                      Contact Us
+                    </Button>
+                  </Col>
+                </Row>
+               
+
+
+
+                {/* Insert MainView based on selection */}
+                {/* {(showHome) ? <HomeView /> :""}
+                {(showEvents) ? <EventsView /> :""}
+                {(showFighters) ? <FightersView /> :""} */}
+                {/* {(showContactUs) ? <ContactUsView /> :""} */}
+
+
+              </Col>
+
+              {/* Sponsor Wheel */}
+              {/* 
+              <Col xs={12} sm={12} md={12} lg={12} style={{display:"flex", justifyContent:"center", alignItems:"center", height:""}}>
+                  <Row>
+                    <Col>
+                      <div>
+                        <img src={currentSponsor.logo} alt={currentSponsor.name} />
+                        <h3 style={{color:"white"}}>{currentSponsor.name}</h3>
+                      </div>
+                    </Col>
+                    <Col>
+                      <div>
+                        <img src={currentSponsor.logo} alt={currentSponsor.name} />
+                        <h3 style={{color:"white"}}>{currentSponsor.name}</h3>
+                      </div>
+                    </Col>
+                    <Col>
+                      <div>
+                        <img src={currentSponsor.logo} alt={currentSponsor.name} />
+                        <h3 style={{color:"white"}}>{currentSponsor.name}</h3>
+                      </div>
+                    </Col>
+                  </Row>
+              </Col>
+               */}
+
+
+            </Row>
+
+          </Col>
+
+        </Row>
+
+      </div>
+
+    );
+  };
+
+
+  const MobileNav = () => {
+      return(
+          <div style={{backgroundColor:"", height:"", width:"", alignContent:"center"}}>
+
+        {/* Desktop Bottom Row -- Nav */}
+        <Row>
+          
+          <Col xs={12} sm={12} md={3} lg={3} style={{ margin:"0 0 20px 0", display:"flex", justifyContent:"center", alignItems:"center", height:""}}>
+            <Button id='nav-button' value={1} onClick={(e) => toggleMainDiv(e.target.value)} style={{width:"50%"}}>
+              Events
+            </Button>
+          </Col>
+
+          <Col xs={12} sm={12} md={3} lg={3} style={{ margin:"0 0 20px 0", display:"flex", justifyContent:"center", alignItems:"center", height:""}}>
+            <Button id='nav-button' value={2} onClick={(e) => toggleMainDiv(e.target.value)} style={{width:"50%"}}>
+              Fighters
+            </Button>
+          </Col>
+
+          <Col xs={12} sm={12} md={3} lg={3} style={{ margin:"0 0 20px 0", display:"flex", justifyContent:"center", alignItems:"center", width:""}}>
+            <Button id='nav-button' onClick={() => window.open("https://form.jotform.com/251378223496059", '_blank')} style={{width:"50%"}}>
+              Register
+            </Button>
+          </Col>
+
+          <Col xs={12} sm={12} md={3} lg={3} style={{ margin:"0 0 0 0", display:"flex", justifyContent:"center", alignItems:"center", height:""}}>
+            <Button id='nav-button' value={3} onClick={(e) => toggleMainDiv(e.target.value)} style={{width:"50%"}}>
+              Contact Us
+            </Button>
+          </Col>
+
+
+        </Row>
+
+
+          </div>
+      )
+  };
+
+
+
+  return (
+    
+    <div className="container-fluid" style={{backgroundColor:"black", height:"100%"}}>
+      
+      
+      <Row>
+
+        <Col>
+          
+          
+
+          
+          
+          {/* Container */}
+          <div style={{overflow:""}}>
+            
+            {/* Video Overlay */}
+            <div className="video-overlay" style={{position:"absolute", top:0, left:0, width:"100%", height:"100%", backgroundColor:"rgba(0, 0, 0, 0.8)"}}></div>
+
+            {/* Video */}
+            <video autoPlay loop muted playsInline style={{width:"100%", height:"100vh", objectFit:"cover"}}>
+              <source src={Video} type="video/mp4" />
+            </video>
+
+            {/* Nav Bar Image */}
+            <Row className="" style={{ backgroundColor:"",position:"absolute", top:0, left:"", width:"100%", height:"80px"}}>
+              <img src={Logo} style={{height:"100%", objectFit:"contain"}} />
+            </Row>
+
+
+
+
+
+            {/* Top Row */}
+            <Row style={{backgroundColor:"", position:"absolute", top:"100px", left:"0", height:"30vh", width:"100%", paddingTop:""}}>
+              <Col xs={12} sm={12} md={12} lg={12} style={{ backgroundColor:"", height:"60vh"}}>
+                {/* Bottom Row -- Nav */}
+                {showEvents ? <EventsView isMobile={isMobile} /> : ""}
+                {showFighters ? <FightersView isMobile={isMobile}/> : ""}
+                {showContactUs ? <ContactUsView isMobile={isMobile}/> : ""}
+
+              </Col>
+
+              <Col xs={12} sm={12} md={12} lg={12}>
+
+
+                {/* Contents */}
+                {isMobile ? <MobileNav /> : <DesktopNav />}
+
+
+                {/* footer */}
+                <Row style={{backgroundColor:"black", display:"flex", justifyContent:"", alignItems:"center", margin:"20px 0 0 0", height:"", width:"100%", color:"white"}}>
+                  
+                  
+                  
+                  {/* Sponsor Wheel */}
+
+                  {/* Disclaimer */}
+                  <Col xs={12} sm={12} md={12} lg={12} style={{backgroundColor:"", display:"", justifyContent:"", alignItems:"", height:""}}>
+                    <div style={{textAlign:"center", fontSize:"80%"}}>
+                      Fighters, fights, date(s), and location are subject to change.
+                    </div>
+                  </Col>
+
+
+
+                </Row>
+
+
+              </Col>
+
+
+
+            </Row>
+
+
+          </div>
+        </Col>
+      
+      </Row>
+      
+      
+    </div>    
+        
+  );
+
 };
 
 export default Home;
-

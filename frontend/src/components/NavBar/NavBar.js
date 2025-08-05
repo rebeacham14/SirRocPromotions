@@ -1,21 +1,54 @@
-// import React from 'react';
-import './NavBar.css'; // Assuming you'll create a CSS file for styling
+// Navbar.jsx
+import React, { useState } from 'react';
+import { NavLink } from 'react-router-dom'; // ✅ Import NavLink
+import './NavBar.css';
 
 const Navbar = () => {
+  const [menuOpen, setMenuOpen] = useState(false);
+
   return (
     <nav className="navbar" role="navigation">
-      <ul className="nav-links">
+      {/* Hamburger for mobile */}
+      <div 
+        className="menu-toggle" 
+        onClick={() => setMenuOpen(!menuOpen)}
+      >
+        ☰
+      </div>
+
+      <ul className={`nav-links ${menuOpen ? 'active' : ''}`}>
         <li>
-          <a href="/">Home</a>
+          <NavLink 
+            to="/" 
+            className={({ isActive }) => isActive ? 'active' : ''}
+            end
+          >
+            Home
+          </NavLink>
         </li>
         <li>
-          <a href="/events">Events</a>
+          <NavLink 
+            to="/events" 
+            className={({ isActive }) => isActive ? 'active' : ''}
+          >
+            Events
+          </NavLink>
         </li>
         <li>
-          <a href="/fighters">Fighters</a>
+          <NavLink 
+            to="/fighters" 
+            className={({ isActive }) => isActive ? 'active' : ''}
+          >
+            Fighters
+          </NavLink>
         </li>
         <li>
-          <a href="/register" style={{color:"gold"}}>Register</a>
+          <NavLink 
+            to="/register" 
+            className={({ isActive }) => isActive ? 'active' : ''}
+          >
+            Register
+          </NavLink>
         </li>
       </ul>
     </nav>
@@ -23,3 +56,4 @@ const Navbar = () => {
 };
 
 export default Navbar;
+

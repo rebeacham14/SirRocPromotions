@@ -1,372 +1,234 @@
-import 'bootstrap/dist/css/bootstrap.min.css'; // bootstrap capability
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './BuyATicket.css';
-
-import { loadStripe } from "@stripe/stripe-js";
-import { Elements } from '@stripe/react-stripe-js';
-
-
-import { useEffect, useState} from 'react';
-import {Row, Col, Card, Button, } from 'react-bootstrap';
-
+import { useEffect, useState } from 'react';
+import { Row, Col, Card, Button, Form, Container, ProgressBar } from 'react-bootstrap';
 import TicketSectionSelection from '../../components/TicketSectionSelection/TicketSectionSelection.js';
 import TicketFullSeatSelection from '../../components/TicketFullSeatSelection/TicketFullSeatSelection.js';
 import TicketSingleSeatSelection from '../../components/TicketSingleSeatSelection/TicketSingleSeatSelection.js';
 import TicketFighterSelection from '../../components/TicketFighterSelection/TicketFighterSelection.js';
 
+function BuyATicket() {
+  const [availableTickets, setSeatAvailability] = useState(null);
+  const [rowType, setRowType] = useState('');
+  const [isAtEnd, setAtEnd] = useState(false);
+  const [user, setUser] = useState('');
+  const [checkUser1, setCheckUser1] = useState('');
+  const [checkUser2, setCheckUser2] = useState('');
+  const [section, setSection] = useState('');
+  const [seat, setSeatNumber] = useState('');
+  const [price, setPrice] = useState(0);
+  const [fighter, setFighter] = useState('');
+  const [error, setError] = useState(null);
+  const [step, setStep] = useState(1);
+  const [needInfo, setNeedInfo] = useState(true);
 
 
-function BuyATicket () {
+  const progressValue = (step / 5) * 100;
 
-    const [availableTickets, setSeatAvailability] = useState(null)
-    
-    const [rowType, setRowType] = useState("");
-
-    const [isAtEnd, setAtEnd] = useState(false);
-    const [needInfo, setNeedInfo] = useState(true);
-
-    const [user, setUser] = useState("")
-    const [checkUser1, setCheckUser1] = useState("")
-    const [checkUser2, setCheckUser2] = useState("")
-
-    const [section, setSection] = useState("");
-    const [seat, setSeatNumber] = useState("");
-    const [price, setPrice] = useState(0);
-    const [fighter, setFighter] = useState("");
-    
-    
-    const [error, setError] = useState(null);
-    
-
-    useEffect(() => {
-        const fetchSeatAvailability = async () => {
-            const response = await fetch('/api/ticket');
-            const json = await response.json()
-            if(response.ok){
-                setSeatAvailability(json)
-            }
-        }
-        fetchSeatAvailability();
-    }, [])
-
-    const handleSeatChange = (e) => {
-        setError(null)
-
-        setSeatNumber(e.target.value);
-       
-        // calculate price   
-        const seatX = e.target.value;
-        const row = seatX.charAt(0)
-        
-        if(section.length==2){
-            
-        }
-
-        switch(section.charAt(0)){
-            case "A":
-            case "B":
-            case "C":
-            case "D":
-            case "E":
-                if(row=="A"||row=="B"){setPrice(92.50)}
-                else{setPrice(67.50)}
-                break;
-            case "F":            
-                setPrice(92.50)
-                break;
-            case "G":
-                setPrice(115.00)
-                break;
-        }
+  useEffect(() => {
+    const fetchSeatAvailability = async () => {
+      const response = await fetch('/api/ticket');
+      const json = await response.json();
+      if (response.ok) setSeatAvailability(json);
     };
-    
-    const handleFighter = (e) => {
-        setError(null)
+    fetchSeatAvailability();
+  }, []);
 
-        // user selects fighter
-        // setFighter(e.target.value)
-        
-        // if(fighter==""){console.log("empty fighter")}else{
-        //     return;
-        // }        
-    };
-
-
-    function onSetEmail(){
-        // check if emails match
-        if(checkUser1!="" && checkUser1 == checkUser2 && checkUser2.includes('@') && checkUser1.includes('.com') ){
-            setError(null)
-            setUser(checkUser1)
-        }
-        else{setError("waiting to match")}        
-
+  const handleSeatChange = (e) => {
+    const seatX = e.target.value;
+    const row = seatX.charAt(0);
+    setSeatNumber(seatX);
+    if (['A', 'B', 'C', 'D', 'E'].includes(section.charAt(0))) {
+      setPrice(row === 'A' || row === 'B' ? 92.5 : 67.5);
+    } else if (section.charAt(0) === 'F') {
+      setPrice(92.5);
+    } else if (section.charAt(0) === 'G') {
+      setPrice(115);
     }
+    setAtEnd(true);
+  };
 
-    function onBuyClick() {
-        // if all items have been selected 
-        // if(fighter!=""){
-        //     handleBuy();
-        // } else{setError("need more info")}
-
-
-        // if all items have been selected & user verified, buy ticket
-        if(fighter!="" && checkUser1!="" && checkUser1 == checkUser2){
-            setError(null)
-            handleBuy();
-
-        } else{setError("need more info")}
-        
+  const onSetEmail = () => {
+    if (
+      checkUser1 &&
+      checkUser1 === checkUser2 &&
+      checkUser1.includes('@') &&
+      checkUser1.includes('.')
+    ) {
+      setUser(checkUser1);
+      setError(null);
+      setStep(2);
+    } else {
+      setError('Emails must match and be valid.');
     }
+  };
 
-    const handleBuy = async () => {
-        
-        // set variables for backend request
-        const purchaseSeat = {
-            //req.body sent to back-end
-            "user":user,
-            "section":section, 
-            "seat":seat,
-            "price":price, 
-            "fighter":fighter        
-        }        
+  const onBuyClick = () => {
+    if (fighter && user && section && seat) {
+      setError(null);
+      handleBuy();
+    } else {
+      setError('Please complete all selections.');
+    }
+  };
 
+  const handleBuy = () => {
+    alert(`Purchasing ticket for ${fighter} at ${section} ${seat} - $${price}`);
+  };
 
-        // send post request to back end
-        const response = await fetch('https://sirrocpromotions.onrender.com/api/ticket/', {
-            method:"POST",
-            headers:{"Content-Type": "application/json"},
-            body: JSON.stringify(purchaseSeat),
+  const handleClear = () => {
+    window.location.reload();
+  };
 
-        })
+  return (
+    <div style={{ backgroundColor: '#000', minHeight: '100vh', color: '#fff' }}>
+      {/* Header */}
+      <div
+        style={{
+          background: 'linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.9)), url("/ticket-bg.jpg") center/cover',
+          padding: '4rem 2rem',
+          textAlign: 'center',
+        }}
+      >
+        <h1 style={{ fontSize: '3rem', fontWeight: 'bold', color: '#ffc107' }}>Buy a Ticket</h1>
+        <p style={{ color: '#ccc' }}>Select your seat, fighter, and checkout securely.</p>
+      </div>
 
-        const json = await response.json();
+      <Container fluid className="py-4">
+        <Row>
+          {/* Main Area */}
+          <Col lg={8} className="px-4">
+            <ProgressBar
+              now={progressValue}
+              variant="warning"
+              className="mb-4"
+              style={{ height: '10px', borderRadius: '5px' }}
+            />
 
-        if(!response.ok){
-            setError(json.error)
-        }
-        if(response.ok){
-            setError(null)
+            {/* Step 1: Email */}
+            {step === 1 && (
+              <Card className="glass-card mb-4">
+                <Card.Body>
+                  <h4 className="text-warning mb-3">Step 1: Enter Your Email</h4>
+                  <Form.Control
+                    type="email"
+                    placeholder="Enter email"
+                    className="mb-3"
+                    value={checkUser1}
+                    onChange={(e) => setCheckUser1(e.target.value)}
+                  />
+                  <Form.Control
+                    type="email"
+                    placeholder="Re-type email"
+                    className="mb-3"
+                    value={checkUser2}
+                    onChange={(e) => setCheckUser2(e.target.value)}
+                  />
+                  <Button variant="warning" onClick={onSetEmail} className="w-100">
+                    Continue
+                  </Button>
+                  {error && <p className="text-danger mt-2">{error}</p>}
+                </Card.Body>
+              </Card>
+            )}
 
-            // connect to stripe 
-    
-            const row = seat.charAt(0)
-    
-            switch(section.charAt(0)){
-                case "S":            
-                    window.location.href = 'https://buy.stripe.com/28E8wQ1GD973bks7pPgbm00'; 
-                    break;
-                case "A":
-                case "B":
-                case "C":
-                case "D":
-                case "E":
-                    if(row=="A"||row=="B"){
-                        window.location.href ="https://buy.stripe.com/eVq00k4SPab72NW8tTgbm01"
-                    }
-                    else{
-                        window.location.href ="https://buy.stripe.com/eVq28s0Cz9736089xXgbm02"
-                    }
-                    break;
-                case "F":            
-                    window.location.href ="https://buy.stripe.com/bJe00k0Czern3S0aC1gbm03"
-                        if(section.charAt(1)>1){
-                            window.location.href = "https://buy.stripe.com/4gM7sMclhab7agodOdgbm04"
-                        }
-                    break;
-                case "G":
-                    window.location.href ="https://buy.stripe.com/14AcN60Cz0AxfAI11rgbm05"
-                    break;
-            }
+            {/* Step 2: Section */}
+            {step === 2 && (
+              <Card className="glass-card mb-4">
+                <Card.Body>
+                  <h4 className="text-warning mb-3">Step 2: Select Section</h4>
+                  <TicketSectionSelection
+                    onSectionChange={(sec) => {
+                        setSection(sec);
+                        setStep(3);
+                    }}
+                    setSeat={setSeatNumber}
+                    rowType={setRowType}
+                    isAtEnd={setAtEnd}     // ✅ setter function
+                    needInfo={setNeedInfo}
+                    setPrice={setPrice}
+                    />
+
+                </Card.Body>
+              </Card>
+            )}
+
+            {/* Step 3: Seat */}
+            {step === 3 && rowType && (
+              <Card className="glass-card mb-4">
+                <Card.Body>
+                  <h4 className="text-warning mb-3">Step 3: Choose Seat</h4>
+                  {rowType === 'full' && (
+                    <TicketFullSeatSelection onSeatChange={handleSeatChange} isAtEnd={setAtEnd} />
+                  )}
+                  {rowType === 'single' && (
+                    <TicketSingleSeatSelection onSeatChange={handleSeatChange} isAtEnd={setAtEnd} />
+                  )}
+                  {isAtEnd && setStep(4)}
+                </Card.Body>
+              </Card>
+            )}
+
+            {/* Step 4: Fighter */}
+            {step === 4 && (
+              <Card className="glass-card mb-4">
+                <Card.Body>
+                  <h4 className="text-warning mb-3">Step 4: Choose Fighter</h4>
+                  <TicketFighterSelection
+                   isAtEnd={setAtEnd}
+                    onFighterChange={(f) => {
+                        setFighter(f);
+                    }}
+                    
+                    setFighter={(f) => {
+                      setFighter(f);
+                    }}
+                    
+                  />
             
-            console.log("new ticket added")
-        }
-    };
+                </Card.Body>
+              </Card>
+            )}
 
-    function handleClear() {
-        window.location.reload()
+            {/* Step 5: Confirm */}
+            {step === 5 && (
+              <Card className="glass-card">
+                <Card.Body className="text-center">
+                  <h4 className="text-warning mb-3">Step 5: Confirm & Pay</h4>
+                  <Button variant="warning" size="lg" className="w-100" onClick={onBuyClick}>
+                    Buy Now - ${price.toFixed(2)}
+                  </Button>
+                  {error && <p className="text-danger mt-2">{error}</p>}
+                </Card.Body>
+              </Card>
+            )}
+          </Col>
 
-    };
-
-
-    
-    return (
-        <div className="container-fluid" style={{backgroundColor:"black", paddingBottom:"30vh", width:"100%"}}>
-            <Row >
-
-                {/* Side Bar - Abs. Sticky */}
-                <Col xs="2" s="2" md="2" style={{backgroundColor:"", height:"60vh", position:"sticky", top:"15vh"}}>
-                    
-
-                    {/* Selectoin Tracker */}
-                    <center>
-                    <Row style={{backgroundColor:"", justifyContent:"center", marginTop:"20px"}}> 
-                        <Col>
-                            
-                            {/* section */}
-                            <Row style={{color:"white"}}>
-                                <Col>
-                                    <h4>
-                                        Section:
-                                    </h4>
-                                </Col>
-                            </Row>
-
-                            <Card style={{backgroundColor:"rgba(100, 90, 90, 0.2)", color:"white", width:"80%", padding:"10px", marginBottom:"10px", border:"2px solid #ffc107"}}>
-                                <Row>
-                                    <Col md="" className='sectionTracker' style={{display:"flex", justifyContent:"center"}}>
-                                        <p>{section}</p>
-                                    </Col>
-                                </Row>
-                            </Card>
-
-
-                            {/* seat */}
-                            <Row style={{color:"white"}}>
-                                <Col>
-                                    <h4>
-                                        Seat:
-                                    </h4>
-                                </Col>
-                            </Row>
-
-                            <Card style={{backgroundColor:"rgba(100, 90, 90, 0.2)", color:"white", width:"80%", padding:"10px", marginBottom:"10px", border:"2px solid #ffc107"}}>
-                                <Row>
-                                    <Col md="" className='rowTracker' style={{display:"flex", justifyContent:"center"}}>
-                                        <p>{seat}</p>
-                                    </Col>
-                                </Row>
-                            </Card>
-
-
-                            {/* Fighter */}
-                            <Row style={{color:"white"}}>
-                                <Col>
-                                    <h4>
-                                        Fighter:
-                                    </h4>
-                                </Col>
-                            </Row>
-
-                            <Card style={{backgroundColor:"rgba(100, 90, 90, 0.2)", width:"80%", padding:"10px", marginBottom:"10px", border:"2px solid #ffc107"}}>
-                                <Row style={{textAlign:"left", paddingLeft:"20%", color:"white"}}>
-                                    <Col md="" className='fighterTracker' >
-                                        <p>{fighter}</p>
-                                    </Col>
-                                </Row>
-                            </Card>
-
-                            <Row style={{marginTop:"30px"}}>
-                                <Col style={{}}>
-                                    <Button variant='outline-danger' onClick={handleClear} >
-                                        Clear
-                                    </Button>
-                                </Col>
-                                
-                            </Row>
-
-
-
-
-                        </Col>
-                    </Row>
-                    </center>
-                </Col>
-
-
-                {/* Main View */}
-                <Col xs="10"s="10"md="10" style={{backgroundColor:""}}>
-
-                    {/* Buy A Ticket header */}
-                    <Row >
-                        <Col xs="12"s="12"md="12" style={{paddingBottom:"30px", marginTop:"5vh"}}>
-                            <center>
-                                <h1 style={{color: "white"}}>
-                                    Buy A Ticket
-                                   
-                                </h1>
-                            </center>
-                        </Col>
-                        
-
-                        {/* Email Form */}
-                        <Col xs="12"s="12"md="12" style={{ backgroundColor:"", paddingBottom:"30px", marginTop:"", }}>
-                            <input type="email" placeholder="Enter email" value={checkUser1} onChange={(e) => setCheckUser1(e.target.value)} style={{backgroundColor:"", border:"1px solid golds", borderRadius:"5px"}}>
-
-                            </input>
-                        </Col>
-                        
-                        <Col xs="12"s="12"md="12" style={{ backgroundColor:"", paddingBottom:"30px", marginTop:"", }}>
-                            <input type="email" placeholder="Re-type email" value={checkUser2} onChange={(e) => setCheckUser2(e.target.value)} style={{backgroundColor:"", borderRadius:"5px"}}>
-                                
-                            </input>
-                        </Col>
-                        
-                        <Col xs="6"s="6"md="6" style={{ backgroundColor:"", paddingBottom:"30px", marginTop:"", }}>
-                            <Button onClick={onSetEmail}>
-                                Set email
-                            </Button>
-                            <div>
-                                <p style={{color:"white"}}>
-                                    Email: {user}
-                                </p>
-                            </div>
-                        </Col>
-
-
-                    </Row>
-                    
-                    {/* Buy Button / Price */}
-                    <center>
-                    <Row style={{backgroundColor:""}}>
-                        <Col xs="4"s="4"md="4">
-                            <Button variant='warning' style={{width:"50%"}} onClick={onBuyClick}>
-                                Buy
-                            </Button>
-                            { error!="" ? <p style={{color:"red"}}>{error}</p> : ""}
-                        </Col>
-                        
-                        <Col xs="4"s="4"md="4" style={{backgroundColor:"", color:"white"}}>
-                            <h1>${price}</h1>
-                        </Col>
-
-
-                    </Row>
-                    </center>
-                
-
-                    <Row>
-                        {availableTickets && availableTickets.map((seat) => {
-                            <p key={seat}> {seat} </p>
-
-                        })}
-
-
-                    </Row>
-
-
-                    {/* Insert Ticket Fighter Selection */}
-                    {(isAtEnd) ? <TicketFighterSelection onFighterChange={handleFighter} setFighter={setFighter} /> :""}
-
-                    
-                    {/* Insert full Ticket Seat Selection */}
-                    {(rowType == "full") ? <TicketFullSeatSelection onSeatChange={handleSeatChange} isAtEnd={setAtEnd}/> :""}
-
-                    {/* Insert single Ticket Seat Selection */}
-                    {(rowType == "single") ? <TicketSingleSeatSelection onSeatChange={handleSeatChange} isAtEnd={setAtEnd}/> :""}
-
-
-
-                    {/* Insert Ticket Section Selection */}
-                    <TicketSectionSelection onSectionChange={setSection} setSeat={setSeatNumber} rowType={setRowType} isAtEnd={setAtEnd} needInfo={setNeedInfo} setPrice={setPrice}/>
-
-                    
-
-                </Col>
-            </Row>
-        </div>
-    );
-};
+          {/* Sidebar */}
+          <Col lg={4} className="px-4 mt-4 mt-lg-0">
+            <Card className="glass-card border-warning">
+              <Card.Body>
+                <h5 className="text-warning">Order Summary</h5>
+                <hr className="border-warning" />
+                <p><strong>Email:</strong> {user || '-'}</p>
+                <p><strong>Section:</strong> {section || '-'}</p>
+                <p><strong>Seat:</strong> {seat || '-'}</p>
+                <p><strong>Fighter:</strong> {fighter || '-'}</p>
+                <p className="h5 text-warning"><strong>Total:</strong> ${price.toFixed(2)}</p>
+                <Button variant="outline-danger" size="sm" onClick={handleClear}>
+                  Clear
+                </Button>
+              </Card.Body>
+            </Card>
+          </Col>
+        </Row>
+      </Container>
+    </div>
+  );
+}
 
 export default BuyATicket;
+
 
 
 

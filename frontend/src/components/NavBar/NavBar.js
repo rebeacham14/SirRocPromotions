@@ -1,54 +1,21 @@
-// Navbar.jsx
-import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom'; // ✅ Import NavLink
-import './NavBar.css';
+// import React from 'react';
+import './NavBar.css'; // Assuming you'll create a CSS file for styling
 
 const Navbar = () => {
-  const [menuOpen, setMenuOpen] = useState(false);
-
   return (
     <nav className="navbar" role="navigation">
-      {/* Hamburger for mobile */}
-      <div 
-        className="menu-toggle" 
-        onClick={() => setMenuOpen(!menuOpen)}
-      >
-        ☰
-      </div>
-
-      <ul className={`nav-links ${menuOpen ? 'active' : ''}`}>
+      <ul className="nav-links">
         <li>
-          <NavLink 
-            to="/" 
-            className={({ isActive }) => isActive ? 'active' : ''}
-            end
-          >
-            Home
-          </NavLink>
+          <a href="/">Home</a>
         </li>
         <li>
-          <NavLink 
-            to="/events" 
-            className={({ isActive }) => isActive ? 'active' : ''}
-          >
-            Events
-          </NavLink>
+          <a href="/events">Events</a>
         </li>
         <li>
-          <NavLink 
-            to="/fighters" 
-            className={({ isActive }) => isActive ? 'active' : ''}
-          >
-            Fighters
-          </NavLink>
+          <a href="/fighters">Fighters</a>
         </li>
         <li>
-          <NavLink 
-            to="/register" 
-            className={({ isActive }) => isActive ? 'active' : ''}
-          >
-            Register
-          </NavLink>
+          <a href="https://form.jotform.com/251378223496059" style={{color:"gold"}}>Register</a>
         </li>
       </ul>
     </nav>
@@ -56,4 +23,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-

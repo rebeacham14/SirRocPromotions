@@ -1,7 +1,7 @@
 import 'bootstrap/dist/css/bootstrap.min.css'; // bootstrap capability
 
 
-import emailjs from 'emailjs-com';
+import emailjs from '@emailjs/browser';
 
 import JsBarcode from 'jsbarcode';
 

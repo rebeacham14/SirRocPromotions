@@ -51,7 +51,7 @@ const createTicket = async (req, res) => {
     
     const { user, section, seats, price, seatPriceData, fighter } = req.body;
 
-    const eachseat = seats.split("-")
+    const eachseat = seats.split("!-")
 
     console.log(seats)
     const event="Mexico Independence Day"
@@ -208,4 +208,5 @@ module.exports = {
     updateTicket,
     deleteTicket
 };
+
 

@@ -134,7 +134,7 @@ function BuyATicket () {
         let user2 = inputRef2.current.value;
 
 
-        if(user1!=="" && user1 === user2 && user2.includes('@') && user1.includes('.com') ){
+        if(user1!=="" && user1 === user2 && user2.includes('@') && (user1.includes('.com') || user1.includes('.net')) ){
             setError(null)
 
             setCheckUser1(user1)

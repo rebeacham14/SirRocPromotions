@@ -37,8 +37,6 @@ const getTicketById = async (req, res) => {
 };
 
 
-
-
 // Create a new ticket
 const createTicket = async (req, res) => {
 
@@ -49,6 +47,56 @@ const createTicket = async (req, res) => {
     
 
     
+    const { user, section, seats, price, fighter } = req.body;
+
+    const eachseat = seats.split("!-")
+
+    console.log(seats)
+    const event="Mexico Independence Day"
+
+    let ticketType="General-Admission"
+    // if(section=="S"){ticketType="Standing"}else{ticketType="General-Admission"}
+
+
+    // ---------------------recieve request----------------------//
+
+    
+    try {
+
+
+        // save to mongo db
+        const newTicket = await ticketModel.create({
+            "event":event,
+            "user":user,
+            "fighter":fighter,
+            "ticketType":ticketType,
+            "section":section,
+            "seat":seats,
+            "price":price
+        });
+
+        await newTicket.save();
+
+      
+
+
+    } catch (error) {
+        res.status(500).json({ error: error.message});
+    }
+
+
+
+};      
+
+
+
+// Create a new ticket
+const createCheckOutSession = async (req, res) => {
+
+    // ---------------------set variables----------------------//
+    // set variables -- ** same variable name required from BuyATicket (client)
+    
+
     const { user, section, seats, price, seatPriceData, fighter } = req.body;
 
     const eachseat = seats.split("!-")
@@ -85,29 +133,12 @@ const createTicket = async (req, res) => {
     ));
 
 
-    const orderID = user.replace("@", "&").replace(".com", "") +"_"+ section +"_"+ seats +"_"+ price
+    const orderID = user.replace("@", "&").replace(".com", "") +"_"+ section +"_"+ seats +"_"+ price +"_"+ fighter
 
     const orderURL = "https://sirrocpromotions.com/payment-success/?"+orderID
-    console.log(orderURL);
-    // console.log(section);
+    // const orderURL = "http://localhost:3000/payment-success/?"+orderID
 
     try {
-
-
-        // save to mongo db
-        const newTicket = await ticketModel.create({
-            "event":event,
-            "user":user,
-            "fighter":fighter,
-            "ticketType":ticketType,
-            "section":section,
-            "seat":seats,
-            "price":price
-        });
-
-        await newTicket.save();
-
-
         // create stripe session
         const session = await stripe.checkout.sessions.create({
             mode: 'payment',
@@ -116,36 +147,14 @@ const createTicket = async (req, res) => {
             cancel_url: 'https://sirrocpromotions.com/buyaticket/',
         });
 
-
-
-        // console.log(session.id)
-
-        res.json({ id: session.id });
-        // res.json({ id: "after all backend" });
-
-        
+        res.json({ id: session.id });      
 
 
     } catch (error) {
         res.status(500).json({ error: error.message});
     }
 
-
 };      
-
-// create stripe checkout
-const createCheckOutSession = async (req,res) => {
-    
-    // ** same variable name required from BuyATicket
-    // const {section, seat, price} = req.body;
-    
-
-    // return res.status(404).json({ error: 'CheckOut not finished' });
-
-
-}
-
-
 
 
 // Update an existing ticket by ID

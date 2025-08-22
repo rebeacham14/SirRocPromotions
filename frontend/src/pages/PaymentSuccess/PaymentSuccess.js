@@ -21,7 +21,13 @@ function PaymentSuccess () {
     const [isDisabled, setIsDisabled] = useState(false); 
     const [error, setError] = useState("");
 
-    let urlInfo, orderInfo, user, section, seat, price;
+    let urlInfo = ""
+    let orderInfo =""
+    let user = ""
+    let section = ""
+    let seat = "" 
+    let price = ""
+    let fighter = ""
 
 
 
@@ -37,7 +43,7 @@ function PaymentSuccess () {
             urlInfo = window.location.href.split("?"); 
             orderInfo = urlInfo[1].split("_");
             
-            user = orderInfo[0]
+            user = orderInfo[0].replace("&", "@").replace("zdotcom", ".com")
             section = orderInfo[1]
             seat = orderInfo[2].replaceAll("!-",",")
             price = orderInfo[3]
@@ -58,6 +64,41 @@ function PaymentSuccess () {
     }, []);
 
 
+
+    async function makeRecord(){
+
+        urlInfo = window.location.href.split("?"); 
+        orderInfo = urlInfo[1].split("_");
+        
+        user = orderInfo[0].replace("&", "@").replace("zdotcom", ".com")
+        section = orderInfo[1]
+        seat = orderInfo[2].replaceAll("!-",",")
+        price = orderInfo[3]
+        fighter = orderInfo[4]
+
+
+        console.log("making record")
+        const purchaseSeat = {
+            //req.body sent to back-end
+            "user":user,
+            "section":section, 
+            "seats":seat,
+            "price":price, 
+            "fighter":fighter,
+        }
+
+        const mongoResponse = await fetch('https://sirrocpromotions.onrender.com/api/ticket/', {
+            method:"POST",
+            headers:{"Content-Type": "application/json"},
+            body: JSON.stringify(purchaseSeat),
+        });
+
+        console.log(mongoResponse)
+
+    };
+    makeRecord()
+
+    
 
 
     function sendEmailRecipt (){

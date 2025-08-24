@@ -91,17 +91,12 @@ function BuyATicket () {
     const handleFighter = (val) => {
         setError(null)
 
-        console.log(val)
-
         // user selects fighter
         setFighter(val)
 
         setAtEnd(true);
         
     };
-
-
-
 
 
 
@@ -202,12 +197,7 @@ function BuyATicket () {
 
     // call stripe, send mongo db request
     const handleBuy = async () => {
-        
-
-
-        console.log(seats+"kjkjkj")
-
-
+    
 
         // create mongo db record
         const purchaseSeat = {
@@ -229,26 +219,25 @@ function BuyATicket () {
 
 
             // ---------------------send request----------------------//
-            console.log("made it")
 
-            const response = await fetch('https://sirrocpromotions.onrender.com/api/ticket/', {
+            const stripeResponse = await fetch('https://sirrocpromotions.onrender.com/api/ticket/create-checkout-session', {
                 method:"POST",
                 headers:{"Content-Type": "application/json"},
                 body: JSON.stringify(purchaseSeat),
             });
-
             
-            // const response = await fetch('api/ticket', {
+            // const stripeResponse = await fetch('api/ticket/create-checkout-session', {
             //     method:"POST",
             //     headers:{"Content-Type": "application/json"},
             //     body: JSON.stringify(purchaseSeat),
             // });
 
+            
 
             // ---------------------recieve request----------------------//
 
             // store session from backend response
-            const session = await response.json();
+            const session = await stripeResponse.json();
             console.log(session)
 
 
@@ -266,19 +255,32 @@ function BuyATicket () {
                     sessionId: session.id,
                 });
 
-                console.log(result)
-
                 if (result.error) {
                     alert(result.error.message);
+                }else{
+
+
+                    alert('An error occurred during checkout.');
+                    
+
+                    // const mongoResponse = await fetch('https://sirrocpromotions.onrender.com/api/ticket/', {
+                    //     method:"POST",
+                    //     headers:{"Content-Type": "application/json"},
+                    //     body: JSON.stringify(purchaseSeat),
+                    // });
+
+                    
+                    // const response = await fetch('api/ticket', {
+                    //     method:"POST",
+                    //     headers:{"Content-Type": "application/json"},
+                    //     body: JSON.stringify(purchaseSeat),
+                    // });
+
                 }
 
             } else {
                 alert('Failed to create checkout session.');
             }
-
-
-            // console.log(response)
-            // console.log(purchaseSeat)
 
 
         }catch (error){
@@ -287,10 +289,6 @@ function BuyATicket () {
             
         }
 
-        // console.log(selectedSeats);
-
-        // console.log("new ticket added")
-        
     };
 
 
@@ -403,7 +401,7 @@ function BuyATicket () {
                                         Clear
                                     </Button>
 
-                                    <Button variant={((isAtEnd))? "warning" : "outline-warning"} disabled={(isAtEnd)?false:true} style={{width:"50%", marginLeft:"10px"}} onClick={onBuyClick}>
+                                    <Button variant={((isAtEnd))? "warning" : "outline-warning"} disabled={(isAtEnd)?false:true} style={{width:"50%", marginLeft:"10px"}} onClick={() => onBuyClick()}>
                                         Buy
                                     </Button>
                                 </Col>
@@ -539,7 +537,7 @@ function BuyATicket () {
                                 <Col xs="2"s="2"md="2"></Col>
                                 
                                 <Col xs="4"s="4"md="4" style={{}}>
-                                    <Button variant={((isAtEnd))? "warning" : "outline-warning"} disabled={(isAtEnd)?false:true} onClick={onBuyClick} style={{width:"100%", height:"100%"}}>
+                                    <Button variant={((isAtEnd))? "warning" : "outline-warning"} disabled={(isAtEnd)?false:true} onClick={() => onBuyClick()} style={{width:"100%", height:"100%"}}>
                                         Buy
                                     </Button>
                                 </Col>

@@ -133,7 +133,7 @@ const createCheckOutSession = async (req, res) => {
     ));
 
 
-    const orderID = user.replace("@", "&").replace(".com", "") +"_"+ section +"_"+ seats +"_"+ price +"_"+ fighter
+    const orderID = user.replace("@", "&").replace(".com", "zdotcom") +"_"+ section +"_"+ seats +"_"+ price +"_"+ fighter
 
     const orderURL = "https://sirrocpromotions.com/payment-success/?"+orderID
     // const orderURL = "http://localhost:3000/payment-success/?"+orderID
@@ -217,5 +217,4 @@ module.exports = {
     updateTicket,
     deleteTicket
 };
-
 

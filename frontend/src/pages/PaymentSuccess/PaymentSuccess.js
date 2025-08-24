@@ -6,8 +6,6 @@ import emailjs from '@emailjs/browser';
 import JsBarcode from 'jsbarcode';
 
 
-
-
 import { useRef, useEffect, useState} from 'react';
 import { Button, Card, Col, Row } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
@@ -15,6 +13,7 @@ import { useParams } from 'react-router-dom';
 
 function PaymentSuccess () {
 
+    
 
     const canvasRef = useRef(null);  
 
@@ -38,15 +37,19 @@ function PaymentSuccess () {
 
         if (window.location.href.includes("?")){
 
+            // establish info in barcode on screen
+
+            
 
             // get variables from url
             urlInfo = window.location.href.split("?"); 
             orderInfo = urlInfo[1].split("_");
             
-            user = orderInfo[0].replace("&", "@").replace("zdotcom", ".com")
-            section = orderInfo[1]
+            // user = orderInfo[0].replace("&", "@").replace("zdotcom", ".com")
+            // section = orderInfo[1]
             seat = orderInfo[2].replaceAll("!-",",")
-            price = orderInfo[3]
+            // price = orderInfo[3]
+            // fighter = orderInfo[4]
 
 
             if (canvasRef.current) {
@@ -59,10 +62,11 @@ function PaymentSuccess () {
                 });
             }
 
+            
+
         }
 
     }, []);
-
 
 
     async function makeRecord(){
@@ -93,13 +97,17 @@ function PaymentSuccess () {
             body: JSON.stringify(purchaseSeat),
         });
 
-        console.log(mongoResponse)
+        
+        // const response = await fetch('api/ticket', {
+        //     method:"POST",
+        //     headers:{"Content-Type": "application/json"},
+        //     body: JSON.stringify(purchaseSeat),
+        // });
+
 
     };
     makeRecord()
-
     
-
 
     function sendEmailRecipt (){
 
@@ -118,6 +126,7 @@ function PaymentSuccess () {
             price: price
         }
 
+        
         // let params ={
         //     user: "tooprogrammed@gmail.com",
         //     section: "D",

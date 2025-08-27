@@ -74,7 +74,24 @@ function PaymentSuccess () {
         urlInfo = window.location.href.split("?"); 
         orderInfo = urlInfo[1].split("_");
         
-        user = orderInfo[0].replace("&", "@").replace("zdotcom", ".com")
+        user = orderInfo[0]
+
+        if(user.includes("&")){
+            user=user.replace("&", "@")
+        }
+        if(user.includes("zdotcom")){
+            user=user.replace("zdotcom", ".com")
+        }
+        if(user.includes("zdotnet")){
+            user=user.replace("zdotnet", ".net")
+        }
+        if(user.includes("zdotorg")){
+            user=user.replace("zdotorg", ".org")
+        }
+        if(user.includes("zundscr")){
+            user=user.replace("zundscr", "_")
+        }
+
         section = orderInfo[1]
         seat = orderInfo[2].replaceAll("!-",",")
         price = orderInfo[3]

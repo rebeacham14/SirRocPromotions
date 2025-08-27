@@ -133,7 +133,30 @@ const createCheckOutSession = async (req, res) => {
     ));
 
 
-    const orderID = user.replace("@", "&").replace(".com", "zdotcom") +"_"+ section +"_"+ seats +"_"+ price +"_"+ fighter
+    let orderID = user;
+    
+
+    if(orderID.includes("@")){
+        orderID=orderID.replace("@", "&")
+    }
+
+    if(orderID.includes(".com")){
+        orderID=orderID.replace(".com", "zdotcom")
+    }
+
+    if(orderID.includes(".net")){
+        orderID=orderID.replace(".net", "zdotnet")
+    }
+
+    if(orderID.includes(".org")){
+        orderID=orderID.replace(".org", "zdotorg")
+    }
+    if(orderID.includes("_")){
+        orderID=orderID.replace("_", "zundscr")
+    }
+
+    orderID = orderID +"_"+ section +"_"+ seats +"_"+ price +"_"+ fighter
+
 
     const orderURL = "https://sirrocpromotions.com/payment-success/?"+orderID
     // const orderURL = "http://localhost:3000/payment-success/?"+orderID
@@ -217,4 +240,5 @@ module.exports = {
     updateTicket,
     deleteTicket
 };
+
 

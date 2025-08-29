@@ -77,8 +77,7 @@ const createTicket = async (req, res) => {
 
         await newTicket.save();
 
-      
-
+        res.status(200).json({ message: 'OK' });
 
     } catch (error) {
         res.status(500).json({ error: error.message});
@@ -90,7 +89,7 @@ const createTicket = async (req, res) => {
 
 
 
-// Create a new ticket
+// Create a new ticket // includes encoding data to send to payment url (userEmail & fighter)
 const createCheckOutSession = async (req, res) => {
 
     // ---------------------set variables----------------------//
@@ -123,7 +122,7 @@ const createCheckOutSession = async (req, res) => {
                 "unit_amount": seatPriceData[idx] * 100, // Amount in cents
                 "product_data": {
                     "name": event,
-                    "description": seat,
+                    "description": seat + "("+fighter+")"
                 },
             },
             "quantity": 1,
@@ -132,9 +131,8 @@ const createCheckOutSession = async (req, res) => {
 
     ));
 
-
+    // encode user email
     let orderID = user;
-    
 
     if(orderID.includes("@")){
         orderID=orderID.replace("@", "&")
@@ -155,11 +153,28 @@ const createCheckOutSession = async (req, res) => {
         orderID=orderID.replace("_", "zundscr")
     }
 
-    orderID = orderID +"_"+ section +"_"+ seats +"_"+ price +"_"+ fighter
 
 
+    // encode fighter
+    let orderFighter = fighter;
+    
+    if(fighter.includes('"')){
+        orderFighter=fighter.replace('"', "zquote")
+    };
+
+    if(fighter.includes(' ')){
+        orderFighter=fighter.replace(' ', "zspace")
+    };
+
+
+    // create encoded URL
+    orderID = orderID +"_"+ section +"_"+ seats +"_"+ price +"_"+ orderFighter
+
+    
+
+    // send encoded URL to payment success page
     const orderURL = "https://sirrocpromotions.com/payment-success/?"+orderID
-    // const orderURL = "http://localhost:3000/payment-success/?"+orderID
+    //--- const orderURL = "http://localhost:3000/payment-success/?"+orderID
 
     try {
         // create stripe session
@@ -240,5 +255,4 @@ module.exports = {
     updateTicket,
     deleteTicket
 };
-
 

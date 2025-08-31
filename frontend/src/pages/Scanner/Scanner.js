@@ -8,28 +8,18 @@ import { Button, Card, Col, Row } from 'react-bootstrap';
 function Scanner () {
 
 
+    // all tickets
+    const [purchasedTickets, setPurchasedTickets] = useState([])    
 
     // all non-scanned tickets
-    const [purchasedSeats, setPurchasedSeats] = useState("")    
+    const [purchasedSeats, setPurchasedSeats] = useState([])    
     // all scanned tickets
     const [scannedSeats, setScannedSeats] = useState([])
     // all tickets purchased but not scanned
     const [remainingSeats, setRemainingSeats] = useState([])
     
-
-    const [purchasedTickets, setPurchasedTickets] = useState("")    
-
-    const [scannedTickets, setScannedTickets] = useState("")
-
-    const [remainingTickets, setRemainingTickets] = useState([])
-
-
-
-
+    // error reader
     const [error, setError] = useState("");
-
-
-
 
 
     // set purchasedTickets, scannedTickets, and remainingTickets
@@ -38,88 +28,81 @@ function Scanner () {
         // load all tickets from mongo db
         const fetchSeatAvailability = async () => {
             const response = await fetch('https://sirrocpromotions.onrender.com/api/ticket');
+            
             const json = await response.json()
+            
             if(response.ok){
 
-
-                // -------- create list of purchased/ scanned tickets
-                let alreadyScannedTickets =[];
-                let orderedTickets =[];
-
-                // -------- create list of purchased/ scanned seats
-                let alreadyScannedSeats =[];
-                let orderedSeats =[];
+                //  initialize : tickets [purchased]
+                let orderedTickets = [];
                 
+                //  initialize : seats 
+                /*  1. [purchased]    */ let orderedSeats =[];
+                /*  2. [scanned]      */ let alreadyScannedSeats =[];
+                /*  3. [remaining]    */ let notScannedSeats =[];
+                
+                /////////////////////////////////////////////////
+                /////////////////////////////////////////////////
+                
+                // seat:
+                // 0:[user], 1:[seat], 2:[isScanned]
 
-
-                // for each ticket in the database
+                //1. // per **Mongo-Obj** --> 
                 json.forEach(ticket => {
+                    // get: purchased tickets 
+                    orderedTickets.push(ticket)
                     
-
-                    // ---------------- store Seats
-                    // if scanned ? add to scanned list : add to purchased 
-                    if(ticket.section == "scanned"){
-                        alreadyScannedSeats.push(ticket.seat);
-                    }
-                    else{
-                        orderedSeats.push(ticket.seat); 
-                    }
-
-
-                    // ---------------- store whole Tickets
-                    if(ticket.section == "scanned"){
-                        alreadyScannedTickets.push(ticket);
-                    }
-                    else{
-                        orderedTickets.push(ticket); 
-                    }
-
-
+                    // get: seats 1)[purchsed] +++ [user], [seats], [isScanned]
+                    let isScanned = false;
+                    if(ticket.section=="scanned"){isScanned=true}
+                    orderedSeats.push([ticket.user, ticket.seat, isScanned]); 
 
                 });
-                
+                // save : purchased tickets
+                setPurchasedTickets(orderedTickets)
+                // save : purchased seats 
                 setPurchasedSeats(orderedSeats)
+
+                // 2. // per [seat] --> 
+                orderedSeats.forEach(ticket => {
+                    // get: seats 2)[scanned] +++ [if recoreded as "scanned"...]
+                    if(ticket[2] === true){
+                        alreadyScannedSeats.push(ticket);
+                    }
+                    console.log(ticket.section==true)
+                });
+                // save : scanned seats
                 setScannedSeats(alreadyScannedSeats)
 
-                setPurchasedTickets(orderedTickets)
-                setScannedTickets(alreadyScannedTickets)
+                // 3. // per [ seat ] -->
+                orderedSeats.forEach((tixPurchased) => {
 
+                    let isScanned = false;
+                    // notScannedSeats.push(tixPurchased)
 
+                    alreadyScannedSeats.forEach((tixScanned) => {
+                        
+                        if(tixPurchased[1] == tixScanned[1]){
+                            isScanned = true
+                        }
 
-                // -------- create list of remaining tickets
-                let notScannedTickets =[];
+                    });
 
-                // -------- create list of remaining seats
-                let notScannedSeats =[];
-
-
-
-                // for each purchased seat
-                notScannedSeats = orderedSeats.map(oSeat => {
-                   
-                    // if seat is not scanned, put in notscanned 
-                    if(!alreadyScannedSeats.includes(oSeat)){
-                        return oSeat
+                    if(isScanned == false){
+                        notScannedSeats.push(tixPurchased)
                     }
-                    
+                                    
                 })
-
-                
+                // remaining seats
                 setRemainingSeats(notScannedSeats)
-                
-
 
 
             } else {
                 setError("Error fetching all tickets");
             }
-
         }
-
         fetchSeatAvailability();
     }, []);
-
-
 
 
     // control input
@@ -133,58 +116,77 @@ function Scanner () {
     }, []);   
 
 
+    function handleClear() {
+        window.location.reload()
+
+    };
+
 
     const handleKeyDown = (event) => {
         if (event.key === 'Enter') {
-            
             let input = event.target.value;
             
-            if( input !="" || input.length > 2){
-                onScan(input)
+            if( input !="" || input.length > 1){
+                onScanSeat(input)
+                event.target.value = ""
+            }
+            else if (input == "S"){
+                onScanStanding(input)
                 event.target.value = ""
             }
         }        
     };
 
 
+    async function onScanStanding (val) {
+        console.log("standing scanned")
+    };
 
 
-    async function onScan (val) {
-        let currentSeat = val
+    async function onScanSeat (currentSeat) {
 
-       
-        // if already scanned
-        if(scannedSeats.includes(currentSeat)){
-            setError("this ticket has been scanned")
-        }
-        // else if hasnt been scanned  
-        else if (remainingSeats.includes(currentSeat)){
-            
-            // make scanned record
+        let scannedRecord = "";
+
+        // make scanned record
+        try{
+
+            // search purchased seats for scanned seat
             try{
-                const scannedRecord = purchasedTickets.find(obj => obj.seat === currentSeat)
+                // search purchased tickets, does a seat match with current barcode?
+                scannedRecord = purchasedTickets.find(ticket => ticket.seat === currentSeat) 
+                
+                // modify record to send to backend
                 scannedRecord.section = "scanned"
+                scannedRecord.seats = currentSeat
 
-                // send record to mongo db
+            }catch{
+                scannedRecord = "";
+                setError("seat not found")
+            }
+
+
+            // send record of scanned seat to backend
+            // if ticket successfully found
+            if(scannedRecord!==""){
+
+                // send found-ticket to mongo db
                 const response = await fetch('https://sirrocpromotions.onrender.com/api/ticket/', {
                     method:"POST",
                     headers:{"Content-Type": "application/json"},
                     body: JSON.stringify(scannedRecord),
                 });
 
-
-                console.log("making new scan record")
-
+                // refresh view
+                handleClear();
             }
-            catch(e){
-                setError(e)
+            else{
+                setError("scan unsuccessful")
             }
-            
-
-            // refresh view
 
         }
-        
+        catch(e){
+            setError(e)
+        }
 
     };
 
@@ -228,13 +230,20 @@ function Scanner () {
 
                     </Row>
 
-
+                    {/* error */}
+                    <Row style={{marginBottom:"40px", color:"red"}}>
+                        <Col>
+                            {error}
+                        </Col>
+                    </Row>
 
 
                     {/* data */}
                     <Row>
+
+
                         {/* Left side */}
-                        <Col xs="12"sm="12" md="6" lg="6" style={{marginBottom:"50px"}}>
+                        <Col xs="6"sm="6" md="6" lg="6" style={{marginBottom:"50px"}}>
                             
                             {/* Scanned seats header */}
                             <Row>
@@ -245,28 +254,38 @@ function Scanner () {
                                 </Col>
                             </Row>
 
-
                             {/* Scanned seats display */}
                             <Row>
-                                {scannedSeats.map((seat, idx) => (
-                                <Col xs="12"sm="12" md="12" lg="12" key={idx} style={{backgroundColor:"", height:"", textAlign:""}}>
-                                
-                                    <p style={{fontSize:"15px"}}>
-                                        {seat}
-                                    </p>
-                                
-                                </Col>                           
-                                ))}
-                                
-                            </Row>
+                                {scannedSeats.map((ticket, idx) => (
+                                    <Col xs="12"sm="12" md="12" lg="12" key={idx} style={{backgroundColor:"", height:"", textAlign:""}}>
+                                            {/* if ticket exists, show it */}
+                                            { ticket ? 
+                                                <Row>
+                                                    <Col xs="6"sm="6" md="6" lg="6" style={{overflow:"scroll"}}>
+                                                        <p style={{fontSize:"15px", color:"white"}}>
+                                                            {ticket[0]}
+                                                        </p>
+                                                    </Col>
 
+                                                    <Col>
+                                                        <p style={{fontSize:"15px", color:"white"}}>
+                                                            {ticket[1]}
+                                                        </p>
+                                                    </Col>
+                                                </Row>
+
+                                                : ""
+                                            }
+                                            
+                                    </Col>                                
+                                ))}
+                            </Row>
 
                         </Col>
 
 
-
                         {/* right side */}
-                        <Col xs="12"sm="12" md="6" lg="6">
+                        <Col xs="6"sm="6" md="6" lg="6">
                         
                             {/* remaining seats header */}
                             <Row>
@@ -281,17 +300,29 @@ function Scanner () {
 
                             {/* remaining seats display */}
                             <Row>
+                                {remainingSeats.map((ticket, idx) => (
+                                    <Col xs="12"sm="12" md="12" lg="12" key={idx} style={{backgroundColor:"", height:"", textAlign:""}}>
+                                            {/* if ticket exists, show it */}
+                                            { ticket ? 
+                                                <Row>
+                                                    <Col xs="6"sm="6" md="6" lg="6" style={{overflow:"scroll"}}>
+                                                        <p style={{fontSize:"15px", color:"white"}}>
+                                                            {ticket[0]}
+                                                        </p>
+                                                    </Col>
 
-                                {remainingSeats.map((seat, idx) => (
-                                <Col xs="12"sm="12" md="12" lg="12" key={idx} style={{backgroundColor:"", height:"", textAlign:""}}>
-                                
-                                    <p style={{fontSize:"15px", color:"white"}}>
-                                        {seat}
-                                    </p>
-                                
-                                </Col>                           
+                                                    <Col>
+                                                        <p style={{fontSize:"15px", color:"white"}}>
+                                                            {ticket[1]}
+                                                        </p>
+                                                    </Col>
+                                                </Row>
+
+                                                : ""
+                                            }
+                                            
+                                    </Col>                                
                                 ))}
-
                             </Row>
 
 

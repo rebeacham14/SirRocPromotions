@@ -6,10 +6,9 @@ import '@stripe/stripe-js'
 import { loadStripe } from '@stripe/stripe-js';
 
 
-
 import { useEffect, useState, useRef} from 'react';
 import {Row, Col, Card, Button, CloseButton, } from 'react-bootstrap';
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 
 import TicketFighterSelection from '../../components/BuyATicketComponents/TicketFighterSelection/TicketFighterSelection.js';
@@ -17,38 +16,43 @@ import TicketSeatSelector from '../../components/BuyATicketComponents/TicketSeat
 
 function BuyATicket () {
 
+    // info gathered from database
     const [allTickets, setAllTickets] = useState("")
     const [takenSeats, setTakenSeats] = useState("")
 
-
-
-    // let previousStripeKeys = [];
-
-
+    // is user ready to purchase?
     const [isAtEnd, setAtEnd] = useState(false);
 
-        
+    // user info (input)
     const [user, setUser] = useState("")
     const [checkUser1, setCheckUser1] = useState("")
     const [checkUser2, setCheckUser2] = useState("")
 
+    // info about user selection (ticket info)
     const [section, setSection] = useState("");
     const [seats, setSelectedSeats] = useState("");
     const [price, setPrice] = useState(0);
     const [fighter, setFighter] = useState("");
     
+    // price based on business-exec standards
     const [seatPriceData, setSeatPriceData] = useState("");
     
-
+    // errors/alerts to user on screen
     const [error, setError] = useState("");
     
-
+    // is User on mobile device?
     const [isMobile, setIsMobile] = useState(false);
 
 
+    // allow page navigation
+    const navigate = useNavigate();
+    
+    const goToHome = () => {
+        navigate('/'); // Navigate to the '/about' path
+    };
 
     
-    // check if mobile user
+    // check if user device is mobile (screen width <=1024)
     useEffect(() => {
 
         const handleResize = () => {
@@ -61,37 +65,53 @@ function BuyATicket () {
     }, []);
 
 
-    // get all seats already bought
+    // get all seats already bought (database query)
+
+    // render API
+    // useEffect(() => {
+                
+    //     const fetchSeatAvailability = async () => {
+
+    //         const response = await fetch('https://sirrocpromotions.onrender.com/api/ticket');
+            
+    //         const json = await response.json()
+            
+    //         if(response.ok){
+
+    //             setAllTickets(json);
+
+    //         } else {
+    //             setError("Error fetching all tickets");
+    //         }
+
+    //     }
+    //     fetchSeatAvailability();
+
+
+    // }, []);
+
+    // local API
     useEffect(() => {
                 
         const fetchSeatAvailability = async () => {
-
-            const response = await fetch('https://sirrocpromotions.onrender.com/api/ticket');
-            
+            const response = await fetch('http://localhost:4000/api/ticket');
             const json = await response.json()
             
             if(response.ok){
-
                 setAllTickets(json);
-
             } else {
                 setError("Error fetching all tickets");
             }
-
         }
         fetchSeatAvailability();
-
 
     }, []);
 
 
-
-
-    
+    // when user selects fighter...
     const handleFighter = (val) => {
         setError(null)
 
-        // user selects fighter
         setFighter(val)
 
         setAtEnd(true);
@@ -99,28 +119,26 @@ function BuyATicket () {
     };
 
 
-
-    // function updateEmailInputField (){}
-
+    // email input fields
     const inputRef1 = useRef(null);
     const inputRef2 = useRef(null);
 
     useEffect(() => {
-        // Example: Focus the input when the component mounts
+        // Focus the input when the component mounts
         if (inputRef1.current) {
             inputRef1.current.focus();
         }
     }, []);   
 
     useEffect(() => {
-        // Example: Focus the input when the component mounts
+        // Focus the input when the component mounts
         if (inputRef2.current) {
             inputRef2.current.focus();
         }
     }, []);   
 
 
-
+    // verify email input 
     function onSetEmail(){
 
 
@@ -178,27 +196,31 @@ function BuyATicket () {
     }
 
 
-
-
-
+    // verify if user can continue with purchase
     function onBuyClick() {
 
-        // if all items have been selected & user verified, buy ticket
+        // with email input
         if(fighter!="" && checkUser1!="" && checkUser1 == checkUser2){
             setError(null)
             handleBuy();
 
         } else{setError("complete your selections")}
-        
-    }
 
+        // without email input
+        // if(fighter!=""){
+        //     setError(null)
+        //     handleBuy();
+
+        // } else{setError("complete your selections")}
+
+
+    }
         
 
 
     // call stripe, send mongo db request
     const handleBuy = async () => {
     
-
         // create mongo db record
         const purchaseSeat = {
             //req.body sent to back-end
@@ -217,24 +239,25 @@ function BuyATicket () {
         try{
 
 
-
             // ---------------------send request----------------------//
 
-            const stripeResponse = await fetch('https://sirrocpromotions.onrender.com/api/ticket/create-checkout-session', {
-                method:"POST",
-                headers:{"Content-Type": "application/json"},
-                body: JSON.stringify(purchaseSeat),
-            });
-            
-            // const stripeResponse = await fetch('api/ticket/create-checkout-session', {
+            // render API
+            // const stripeResponse = await fetch('https://sirrocpromotions.onrender.com/api/ticket/create-checkout-session', {
             //     method:"POST",
             //     headers:{"Content-Type": "application/json"},
             //     body: JSON.stringify(purchaseSeat),
             // });
+            
+            // local API
+            const stripeResponse = await fetch('http://localhost:4000/api/ticket/create-checkout-session', {
+                method:"POST",
+                headers:{"Content-Type": "application/json"},
+                body: JSON.stringify(purchaseSeat),
+            });
 
             
 
-            // ---------------------recieve request----------------------//
+            // ---------------------recieve response----------------------//
 
             // store session from backend response
             const session = await stripeResponse.json();
@@ -246,7 +269,7 @@ function BuyATicket () {
             const stripe = window.Stripe(process.env.REACT_APP_STRIPE_PUBLIC);
 
 
-            // if theres a session, redirect page to stripe order layout
+            // if theres a session, redirect page to stripe buy-order-UI
             if (session.id) {
 
                 console.log("starting stripe session...");
@@ -258,7 +281,6 @@ function BuyATicket () {
                 if (result.error) {
                     alert(result.error.message);
                 }else{
-
 
                     alert('An error occurred during checkout.');
                     
@@ -313,21 +335,11 @@ function BuyATicket () {
                     <Row style={{backgroundColor:"", height:"20vh", marginBottom:"5vh", position:"relative", left:"-8vw", display:"flex", flexDirection:"column", justifyContent:"space-evenly"}}>
                         <Col>
                             <Link to="/">
-                            <Button id="navButton">
+                            <Button id="navButton" onClick={goToHome}>
                                 Home
                             </Button>
                             </Link>
                         </Col>
-                        {/* <Col>
-                            <Button id="navButton">
-                                Events
-                            </Button>
-                        </Col>
-                        <Col>
-                            <Button id="navButton">
-                                Fighters
-                            </Button>
-                        </Col> */}
                     </Row>
                         
                                         
@@ -368,13 +380,11 @@ function BuyATicket () {
                             <Card style={{backgroundColor:"rgba(100, 90, 90, 0.2)", color:"white", width:"80%", padding:"10px", marginBottom:"10px", border:"2px solid #ffc107"}}>
                                 <Row style={{padding:"10px", just:"center"}}>
                                     <Col xs="12"sm="12"md="4"lg="4" >
-                                        <h5> {seats} </h5>
+                                        <h5 style={{fontSize:"1em"}}> {seats} </h5>
                                     </Col>
 
                                 </Row>
                             </Card>
-
-
 
 
 
@@ -394,20 +404,6 @@ function BuyATicket () {
                                     </Col>
                                 </Row>
                             </Card>
-
-                            <Row style={{margin:"30px 0 30px 0 "}}>
-                                <Col style={{}}>
-                                    <Button variant='outline-danger' onClick={handleClear} >
-                                        Clear
-                                    </Button>
-
-                                    <Button variant={((isAtEnd))? "warning" : "outline-warning"} disabled={(isAtEnd)?false:true} style={{width:"50%", marginLeft:"10px"}} onClick={() => onBuyClick()}>
-                                        Buy
-                                    </Button>
-                                </Col>
-                                { error!="" ? <p style={{color:"red"}}>{error}</p> : ""}
-                            </Row>
-
                         </Col>
                     </Row>
                     </center>
@@ -430,6 +426,18 @@ function BuyATicket () {
                             </center>
                         </Col>
                     </Row>
+                    <Row style={{margin:"30px 0 30px 0 "}}>
+                        <Col style={{}}>
+
+                            <Button variant={((isAtEnd))? "warning" : "outline-warning"} disabled={(isAtEnd)?false:true} style={{width:"20%", margin:"0 20px 0 0"}} onClick={() => onBuyClick()}>
+                                Buy
+                            </Button>
+                            <Button variant='outline-danger' onClick={handleClear} >
+                                Clear
+                            </Button>
+                        </Col>
+                        { error!="" ? <p style={{color:"red"}}>{error}</p> : ""}
+                    </Row>                    
                     </center>
                 
 
@@ -439,52 +447,9 @@ function BuyATicket () {
 
 
                     {/* show TicketSeatSelector if area picked */}
-                    {(user != "") ? <TicketSeatSelector isMobile={isMobile} seatsTaken={takenSeats} setSeats={setSelectedSeats} setSection={setSection} setTotalPrice={setPrice} setSeatPriceData={setSeatPriceData} /> : ""}
+                    <TicketSeatSelector isMobile={isMobile} seatsTaken={takenSeats} setSeats={setSelectedSeats} setSection={setSection} setTotalPrice={setPrice} setSeatPriceData={setSeatPriceData} />
 
 
-
-                    <Row style={{backgroundColor:"rgba(100, 90, 90, 0.2)", height:"25vh", width:"50%", padding:"20px", margin:"20px", border:"2px solid #ffc107", borderRadius:"10px"}}>
-                        <Col>
-                            <Row style={{marginBottom:"20px"}}>
-
-
-
-                                <Col xs=""sm=""md=""lg="" style={{ backgroundColor:"", marginTop:""}}>
-                                    <input ref={inputRef1} type="email" placeholder="Enter email"  style={{backgroundColor:"", paddingLeft:"10px", border:"2px solid black", borderRadius:"5px"}}>
-
-                                    </input>
-                                </Col>
-                                
-                                <Col xs=""sm=""md=""lg="" style={{ backgroundColor:"", marginTop:""}}>
-                                    <input ref={inputRef2} type="email" placeholder="Re-type email" style={{backgroundColor:"", paddingLeft:"10px", border:"2px solid black", borderRadius:"5px"}}>
-                                        
-                                    </input>
-                                </Col>
-                            </Row>
-
-                            <Row style={{marginBottom:"20px"}}>
-                                <Col>
-                                    <center>
-                                    <Button variant="outline-warning" onClick={onSetEmail} style={{width:"50%"}}>
-                                        Set email
-                                    </Button>
-                                    </center>
-                                </Col>
-                            </Row>
-
-                        </Col>
-
-                        
-                        <Col xs="12"sm="12"md="12"lg="12" style={{ backgroundColor:"", paddingBottom:"", marginTop:""}}>
-                            
-                            <div style={{display:"block"}}>
-                                <p style={{color:"white"}}>
-                                    Email: {user}
-                                </p>
-                            </div>
-                        </Col>
-                        
-                    </Row>
 
 
                 </Col>

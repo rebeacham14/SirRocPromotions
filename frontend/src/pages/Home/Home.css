@@ -1,6 +1,6 @@
 #nav-button{
     background-color: rgba(38, 34, 34, 1);
-    width: 80%;
+    /* width: 80%; */
     border: 2px solid #ffc107;
 
 }
@@ -13,8 +13,19 @@
 
 
 #mainButton{
-    background-color: rgba(38, 34, 34, 1);
-    width: 15vw;
-    height: 5vh;
+    width: 120px;
+    /* height: 5vh; */
     
+}
+
+#mainButton:hover {
+    background-color: rgba(0, 0, 0, 0.3);
+    border: 1px solid black;
+    color: white;
+}
+
+
+#descriptionText{
+    color: white;
+    font-size: 1em;
 }

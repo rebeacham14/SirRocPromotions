@@ -34,13 +34,18 @@ function AdminView () {
     const [fighterScore, setFighterScore] = useState([]);
     const [fighterValue, setFighterValue] = useState([]);
 
+    const [totalSeats, setTotalSeats] = useState("");
+    const [totalTickets, setTotalTickets] = useState("");
+    const [totalRevenue, setTotalRevenue] = useState("");
+
 
     // get all seats already bought
     useEffect(() => {
                 
         const fetchSeatAvailability = async () => {
 
-            const response = await fetch('https://sirrocpromotions.onrender.com/api/ticket');
+            // const response = await fetch('https://sirrocpromotions.onrender.com/api/ticket');
+            const response = await fetch('http://localhost:4000/api/ticket');
             
             const json = await response.json()
             
@@ -60,10 +65,8 @@ function AdminView () {
 
     
 
-
+    // for each transaction, a fighter gets a point
     const findFighterSales = () => {
-
-        // for each ticket.fighter, if name matches, add point
 
         let JesusCount=0;
         let AngelCount=0;
@@ -89,10 +92,49 @@ function AdminView () {
         let JessieValue=0;
 
 
+        let totalRev = 0;
+        let soldCount = 0;
+        let purchaseCount = 0;
+    
+
+
+        for (let i = 0; i < allTickets.length; i++) {
+
+            const ticket = allTickets[i];
+            // Check if the 'section' is not "scanned" AND the 'user' includes "@"
+            if (ticket.section !== "scanned" && ticket.user.includes("@")) {
+                
+                purchaseCount++;
+
+                // console.log(ticket.price);
+                totalRev = totalRev + ticket.price
+
+                if(ticket.seat.includes("!-")){
+                    let seats = ticket.seat.split('!-')
+                    
+                    seats.forEach(() => {
+                        soldCount++;
+                    });
+                }
+                else{
+                    soldCount++;
+                }
+                
+            }
+        };
+        
+
+        console.log(soldCount + "count");
+        console.log(totalRev + "rev");
+
+        setTotalSeats(soldCount);
+        setTotalRevenue(totalRev);
+        setTotalTickets(purchaseCount);
+
+
 
         
         for (let i = 0; i < allTickets.length; i++) {
-
             const ftr = allTickets[i].fighter;
 
             switch(ftr){
@@ -182,14 +224,7 @@ function AdminView () {
             JessieValue
         ]
 
-        setFighterValue(fighterValues)
-
-
-        console.log(fighterValues)
-
-        
-
-        
+        setFighterValue(fighterValues)        
 
     };
 
@@ -222,9 +257,29 @@ function AdminView () {
 
 
                     <Row style={{color:"white", fontSize:""}}>   
-                        {/* left side view */}
+                        
+                        
                         <Col xs=""sm=""md=""lg="" >
-                            
+
+                            {/* totals */}
+                            <Row style={{margin:"30px 0"}}>
+                                <Col xs="4"sm="4"md="4"lg="4" >
+                                
+                                </Col>
+                                
+                                <Col xs="4"sm="4"md="4"lg="4" >
+                                    Total seats: {totalSeats}
+                                    <br></br>
+                                    Total tickets: {totalTickets}
+                                </Col>
+                                
+                                <Col xs="4"sm="4"md="4"lg="4" >
+                                    Total revenue: ${totalRevenue}
+                                </Col>
+                                
+                            </Row>
+
+                            {/* Fighter data */}
                             {fighterNames.map((ftr, idx) => (
                             <Row key={idx} style={{backgroundColor:"", height:"", textAlign:"right"}}>
                                 {/* fighter name */}

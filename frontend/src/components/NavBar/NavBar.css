@@ -59,4 +59,26 @@
     margin-right: 0;
     margin-bottom: 0.5rem; /* Add spacing between vertical links */
   }
+
+
+
+
+
+
+  .ham_menu {
+
+    /* backgroundColor: black; */
+    width:40%;
+    display:flex;
+    justify-content: center;
+    color:"white";
+    font-size:200%;
+    border:2px, black, solid;
+    transform: rotate(90deg);   
+    transition: transform 0.5s ease-out; /* Transition for both on and off hover */
+  }
+
+  .ham_menu:hover {
+    transform: rotate(90deg);
+  }
 }

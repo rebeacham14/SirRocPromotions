@@ -27,8 +27,12 @@ function Scanner () {
 
         // load all tickets from mongo db
         const fetchSeatAvailability = async () => {
-            const response = await fetch('https://sirrocpromotions.onrender.com/api/ticket');
-            
+            // render API
+            // const response = await fetch('https://sirrocpromotions.onrender.com/api/ticket');
+
+            // local API
+            const response = await fetch('http://localhost:4000/api/ticket');
+
             const json = await response.json()
             
             if(response.ok){
@@ -105,11 +109,10 @@ function Scanner () {
     }, []);
 
 
-    // control input
+    // control input (focus when component mounts)
     const inputRef = useRef(null);
 
     useEffect(() => {
-        // Example: Focus the input when the component mounts
         if (inputRef.current) {
             inputRef.current.focus();
         }
@@ -193,7 +196,7 @@ function Scanner () {
 
     return (
 
-        <div className="container-fluid" style={{backgroundColor:"black", height:"", width:"", paddingTop:"50px"}}>
+        <div className="container-fluid" style={{backgroundColor:"black", height:"100vh", width:"", paddingTop:"50px"}}>
 
             <Row>
 
